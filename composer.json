@@ -22,10 +22,10 @@
     "require": {
         "php": "^8.0",
         "ext-sodium": "*",
-        "doctrine/annotations": "^1.10.3",
-        "doctrine/orm": "^2.8",
-        "doctrine/doctrine-module": "^4.1.2",
-        "paragonie/halite": "^4.7",
+        "doctrine/annotations": "^1.10",
+        "doctrine/orm": "^2.14",
+        "doctrine/doctrine-module": "^5.0",
+	"paragonie/halite": "^4.7",
         "paragonie/hidden-string": "^1.1",
         "laminas/laminas-modulemanager": "^2.8",
         "laminas/laminas-servicemanager": "^3.6",
@@ -39,5 +39,10 @@
         "classmap": [
             "src/Module.php"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "laminas/laminas-dependency-plugin": true
+        }
     }
 }
