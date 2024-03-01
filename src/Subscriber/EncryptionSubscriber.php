@@ -4,11 +4,11 @@ namespace Keet\Encrypt\Subscriber;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 use Doctrine\ORM\Events;
 use Keet\Encrypt\Annotation\Encrypted;
 use Keet\Encrypt\Interfaces\EncryptionInterface;
@@ -104,11 +104,11 @@ class EncryptionSubscriber implements EventSubscriber
 
     /**
      * @param \object                     $entity
-     * @param ObjectManager|EntityManager $objectManager
+     * @param EntityManagerInterface $objectManager
      *
      * @throws \Doctrine\ORM\Mapping\MappingException
      */
-    private function entityOnFlush(object $entity, ObjectManager|EntityManager $objectManager)
+    private function entityOnFlush(object $entity, EntityManagerInterface|EntityManager $objectManager)
     {
         $objId = spl_object_hash($entity);
         $fields = [];
@@ -139,7 +139,7 @@ class EncryptionSubscriber implements EventSubscriber
      */
     public function postFlush(PostFlushEventArgs $args)
     {
-        $unitOfWork = $args->getEntityManager()->getUnitOfWork();
+        $unitOfWork = $args->getObjectManager()->getUnitOfWork();
 
         foreach ($this->postFlushDecryptQueue as $pair) {
             $fieldPairs = $pair['fields'];
@@ -163,14 +163,14 @@ class EncryptionSubscriber implements EventSubscriber
      * Listen a postLoad lifecycle event. Checking and decrypt entities
      * which have @Encrypted annotations
      *
-     * @param LifecycleEventArgs $args
+     * @param PostLoadEventArgs $args
      *
      * @throws \Doctrine\ORM\Mapping\MappingException
      */
-    public function postLoad(LifecycleEventArgs $args)
+    public function postLoad(PostLoadEventArgs $args)
     {
-        $entity = $args->getEntity();
-        $objectManager = $args->getEntityManager();
+        $entity = $args->getObject();
+        $objectManager = $args->getObjectManager();
 
         if ( ! $this->hasInDecodedRegistry($entity)) {
             if ($this->processFields($entity, $objectManager, false)) {
