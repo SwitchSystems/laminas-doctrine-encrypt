@@ -4,7 +4,7 @@ namespace Keet\Encrypt\Subscriber;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
@@ -68,7 +68,7 @@ class HashingSubscriber implements EventSubscriber
      */
     public function onFlush(OnFlushEventArgs $args)
     {
-        $objectManager = $args->getEntityManager();
+        $objectManager = $args->getObjectManager();
         $unitOfWork = $objectManager->getUnitOfWork();
 
         foreach ($unitOfWork->getScheduledEntityInsertions() as $entity) {
@@ -86,11 +86,11 @@ class HashingSubscriber implements EventSubscriber
      * Processes the entity for an onFlush event.
      *
      * @param \object                     $entity
-     * @param ObjectManager|EntityManager $objectManager
+     * @param EntityManagerInterface $objectManager
      *
      * @throws \Doctrine\ORM\Mapping\MappingException
      */
-    private function entityOnFlush(object $entity, ObjectManager $objectManager)
+    private function entityOnFlush(object $entity, EntityManagerInterface $objectManager)
     {
         $fields = [];
 
